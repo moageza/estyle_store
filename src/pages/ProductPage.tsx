@@ -21,6 +21,8 @@ import { StarRating } from '@/components/StarRating';
 import { ProductCard } from '@/components/ProductCard';
 import { SectionHeading } from '@/components/SectionHeading';
 import { VirtualTryOn } from '@/components/VirtualTryOn';
+import { ReviewsList } from '@/components/ReviewsList';
+import { ReviewForm } from '@/components/ReviewForm';
 
 export function ProductPage() {
   const { id } = useParams();
@@ -288,6 +290,14 @@ export function ProductPage() {
               </span>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Reviews */}
+      <div className="mt-20">
+        <ReviewsList productId={product.id} />
+        <div className="mt-6">
+          <ReviewForm productId={product.id} />
         </div>
       </div>
 

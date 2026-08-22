@@ -336,3 +336,102 @@ export async function listProductImages(productId: number): Promise<string[]> {
     return urlData.publicUrl;
   });
 }
+
+/* ── Reviews ────────────────────────────────────────────── */
+
+export interface Review {
+  id: string;
+  product_id: number;
+  customer_name: string;
+  customer_email: string | null;
+  rating: number;
+  title: string | null;
+  comment: string;
+  is_verified: boolean;
+  is_approved: boolean;
+  created_at: string;
+}
+
+/**
+ * Fetch approved reviews for a product.
+ */
+export async function fetchProductReviews(productId: number): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('product_id', productId)
+    .eq('is_approved', true)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as Review[];
+}
+
+/**
+ * Submit a new review (anyone can submit, requires admin approval).
+ */
+export async function submitReview(review: {
+  productId: number;
+  customerName: string;
+  customerEmail?: string;
+  rating: number;
+  title?: string;
+  comment: string;
+}): Promise<Review> {
+  const { data, error } = await supabase
+    .from('reviews')
+    .insert({
+      product_id: review.productId,
+      customer_name: review.customerName,
+      customer_email: review.customerEmail ?? null,
+      rating: review.rating,
+      title: review.title ?? null,
+      comment: review.comment,
+      is_approved: false,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Review;
+}
+
+/**
+ * Admin: Fetch all reviews (including unapproved).
+ */
+export async function adminFetchAllReviews(): Promise<Review[]> {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data as Review[];
+}
+
+/**
+ * Admin: Approve or reject a review.
+ */
+export async function adminUpdateReview(id: string, isApproved: boolean): Promise<Review> {
+  const { data, error } = await supabase
+    .from('reviews')
+    .update({ is_approved: isApproved })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Review;
+}
+
+/**
+ * Admin: Delete a review.
+ */
+export async function adminDeleteReview(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('reviews')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+}
