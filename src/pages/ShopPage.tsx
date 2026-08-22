@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { SlidersHorizontal, X, Search } from 'lucide-react';
 import { useStore } from '@/store/StoreContext';
 import { tr } from '@/data/translations';
+import { useSEO } from '@/lib/useSEO';
 import { PRODUCTS, CATEGORIES } from '@/data/products';
 import { COLORS } from '@/data/products';
 import { ProductCard } from '@/components/ProductCard';
@@ -14,6 +15,15 @@ const ALL_SIZES = Array.from(new Set(PRODUCTS.flatMap((p) => p.sizes))).sort();
 
 export function ShopPage() {
   const { lang } = useStore();
+
+  useSEO({
+    title: lang === 'ar' ? 'المتجر' : 'Shop',
+    description: lang === 'ar'
+      ? 'تسوّق أحدث صيحات الموضة: تيشيرتات، قمصان، هوديز، جينز، فساتين، أحذية، حقائب وإكسسوار'
+      : 'Shop the latest fashion trends: t-shirts, shirts, hoodies, jeans, dresses, shoes, bags and accessories',
+    url: 'https://temporary-zippy-bronze-gjqgmcq.vercel.app/shop',
+  });
+
   const [params, setParams] = useSearchParams();
 
   const [search, setSearch] = useState(params.get('q') ?? '');

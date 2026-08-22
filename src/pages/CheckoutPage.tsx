@@ -7,6 +7,7 @@ import { getProductById } from '@/data/products';
 import { cartSubtotal, shippingCost, formatPrice } from '@/utils/shop';
 import type { OrderInfo, PlacedOrder } from '@/types';
 import { EmptyState } from '@/components/SectionHeading';
+import { createOrder } from '@/lib/api';
 
 export function CheckoutPage() {
   const { lang, cart, clearCart, setLastOrder } = useStore();
@@ -68,12 +69,13 @@ export function CheckoutPage() {
     if (errors[field]) setErrors((p) => ({ ...p, [field]: undefined }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
     setSubmitting(true);
+    const orderId = `ES-${Date.now().toString().slice(-6)}`;
     const order: PlacedOrder = {
-      id: `ES-${Date.now().toString().slice(-6)}`,
+      id: orderId,
       items: cart,
       info: form,
       subtotal,
@@ -81,12 +83,30 @@ export function CheckoutPage() {
       total,
       date: new Date().toISOString(),
     };
-    setTimeout(() => {
-      setLastOrder(order);
-      clearCart();
-      setSubmitting(false);
-      navigate('/order-confirmation');
-    }, 700);
+
+    // Persist to Supabase (best-effort — don't block the UI if it fails)
+    try {
+      await createOrder({
+        id: orderId,
+        customerName: form.name,
+        customerPhone: form.phone,
+        customerEmail: form.email,
+        customerAddress: form.address,
+        customerCity: form.city,
+        notes: form.notes,
+        subtotal,
+        shipping,
+        total,
+        items: cart,
+      });
+    } catch (err) {
+      console.warn('Failed to persist order to Supabase:', err);
+    }
+
+    setLastOrder(order);
+    clearCart();
+    setSubmitting(false);
+    navigate('/order-confirmation');
   };
 
   const inputClass = (field: keyof OrderInfo) =>

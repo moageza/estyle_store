@@ -13,12 +13,14 @@ import {
 } from 'lucide-react';
 import { useStore } from '@/store/StoreContext';
 import { tr } from '@/data/translations';
+import { useSEO } from '@/lib/useSEO';
 import { CATEGORIES, getProductById } from '@/data/products';
 import { formatPrice, getRelatedProducts, colorNameLabel } from '@/utils/shop';
 import type { ColorName } from '@/types';
 import { StarRating } from '@/components/StarRating';
 import { ProductCard } from '@/components/ProductCard';
 import { SectionHeading } from '@/components/SectionHeading';
+import { VirtualTryOn } from '@/components/VirtualTryOn';
 
 export function ProductPage() {
   const { id } = useParams();
@@ -30,6 +32,15 @@ export function ProductPage() {
   const [size, setSize] = useState<string | null>(null);
   const [color, setColor] = useState<ColorName | null>(null);
   const [qty, setQty] = useState(1);
+
+  // Dynamic SEO for this product
+  useSEO({
+    title: product?.name[lang] ?? '',
+    description: product?.description[lang],
+    image: product?.image,
+    url: `https://temporary-zippy-bronze-gjqgmcq.vercel.app/product/${id}`,
+    type: 'product',
+  });
 
   if (!product) {
     return (
@@ -46,7 +57,7 @@ export function ProductPage() {
   const wished = isInWishlist(product.id);
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
   const gallery = product.gallery.length > 0 ? product.gallery : [product.image];
-  const related = getRelatedProducts(product, 4);
+  const related = getRelatedProducts(product);
   const catLabel = CATEGORIES.find((c) => c.key === product.category)?.[lang];
 
   const handleAddToCart = () => {
@@ -255,6 +266,15 @@ export function ProductPage() {
                 <span className="text-[11px] leading-tight text-ink-soft">{item.label}</span>
               </div>
             ))}
+          </div>
+
+          {/* AI Virtual Try-On */}
+          <div className="mt-6">
+            <VirtualTryOn
+              productName={product.name[lang]}
+              productImage={product.image}
+              productDescription={product.description[lang]}
+            />
           </div>
 
           {/* Tags */}
