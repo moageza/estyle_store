@@ -40,7 +40,7 @@ export function ProductPage() {
     title: product?.name[lang] ?? '',
     description: product?.description[lang],
     image: product?.image,
-    url: `https://temporary-zippy-bronze-gjqgmcq.vercel.app/product/${id}`,
+    url: `https://estyle-store.vercel.app/product/${id}`,
     type: 'product',
   });
 

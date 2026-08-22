@@ -21,7 +21,7 @@ export function ShopPage() {
     description: lang === 'ar'
       ? 'تسوّق أحدث صيحات الموضة: تيشيرتات، قمصان، هوديز، جينز، فساتين، أحذية، حقائب وإكسسوار'
       : 'Shop the latest fashion trends: t-shirts, shirts, hoodies, jeans, dresses, shoes, bags and accessories',
-    url: 'https://temporary-zippy-bronze-gjqgmcq.vercel.app/shop',
+    url: 'https://estyle-store.vercel.app/shop',
   });
 
   const [params, setParams] = useSearchParams();
